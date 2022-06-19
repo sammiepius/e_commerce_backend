@@ -1,6 +1,5 @@
 const router = require('express').Router();
 const Cart = require('../models/Cart');
-const User = require('../models/User');
 const {
   verifyToken,
   verifyTokenAndAuthorization,
@@ -59,29 +58,13 @@ router.get('/find/:userId', verifyTokenAndAuthorization, async (req, res) => {
   }
 });
 
-//GET ALL 
-
-router.get('/', async (req, res) => {
-  const qNew = req.query.new;
-  const qCategory = req.query.category;
+//GET ALL
+router.get('/', verifyTokenAndAdmin, async (req, res) => {
   try {
-    let products;
-
-    if (qNew) {
-      products = await Product.find().sort({ createdAt: -1 }).limit(1);
-    } else if (qCategory) {
-      products = await Product.find({
-        categories: {
-          $in: [qCategory],
-        },
-      });
-    } else {
-      products = await Product.find();
-    }
-
-    res.status(200).json(products);
+    const carts = await Cart.find();
+    res.status(200).json(carts);
   } catch (err) {
-    res.json(err);
+    res.status(500).json(err);
   }
 });
 
